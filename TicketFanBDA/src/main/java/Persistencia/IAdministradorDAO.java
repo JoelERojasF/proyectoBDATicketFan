@@ -16,7 +16,7 @@ import java.util.List;
 public interface IAdministradorDAO {
     AdministradorEntidad guardarAdministrador(GuardarAdministradorDTO registro) throws PersistenciaException;
     AdministradorEntidad editarAdministrador(EditarAdministradorDTO registro) throws PersistenciaException;
-    AdministradorEntidad eliminarAdministrador(String id) throws PersistenciaException;
-    AdministradorEntidad BuscarPorID(String id) throws PersistenciaException;
+    AdministradorEntidad eliminarAdministrador(int id) throws PersistenciaException;
+    AdministradorEntidad BuscarPorID(int id) throws PersistenciaException;
     List<AdministradorEntidad> listarAlumnos(String filtro) throws PersistenciaException;
 }

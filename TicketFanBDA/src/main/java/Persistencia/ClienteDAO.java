@@ -26,12 +26,12 @@ public class ClienteDAO implements IClienteDAO{
     }
 
     @Override
-    public ClienteEntidad eliminarCliente(String id) throws PersistenciaException {
+    public ClienteEntidad eliminarCliente(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public ClienteEntidad BuscarPorID(String id) throws PersistenciaException {
+    public ClienteEntidad BuscarPorID(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

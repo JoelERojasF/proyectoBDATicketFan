@@ -16,7 +16,7 @@ import java.util.List;
 public interface IPromotoraDAO {
     PromotoraEntidad guardarPromotora(GuardarPromotoraDTO registro) throws PersistenciaException;
     PromotoraEntidad editarPromotora(EditarPromotoraDTO registro) throws PersistenciaException;
-    PromotoraEntidad eliminarPromotora(String id) throws PersistenciaException;
-    PromotoraEntidad BuscarPorID(String id) throws PersistenciaException;
+    PromotoraEntidad eliminarPromotora(int id) throws PersistenciaException;
+    PromotoraEntidad BuscarPorID(int id) throws PersistenciaException;
     List<PromotoraEntidad> listarAlumnos(String filtro) throws PersistenciaException;
 }

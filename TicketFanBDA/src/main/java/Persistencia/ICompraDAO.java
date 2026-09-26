@@ -16,7 +16,7 @@ import java.util.List;
 public interface ICompraDAO {
     CompraEntidad guardarCompra(GuardarCompraDTO registro) throws PersistenciaException;
     CompraEntidad editarCompra(EditarCompraDTO registro) throws PersistenciaException;
-    CompraEntidad eliminarCompra(String id) throws PersistenciaException;
-    CompraEntidad BuscarPorID(String id) throws PersistenciaException;
+    CompraEntidad eliminarCompra(int id) throws PersistenciaException;
+    CompraEntidad BuscarPorID(int id) throws PersistenciaException;
     List<CompraEntidad> listarAlumnos(String filtro) throws PersistenciaException;
 }

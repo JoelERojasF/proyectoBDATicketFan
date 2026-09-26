@@ -16,7 +16,7 @@ import java.util.List;
 public interface ICuentaDAO {
     CuentaEntidad guardarCuenta(GuardarCuentaDTO registro) throws PersistenciaException;
     CuentaEntidad editarCuenta(EditarCuentaDTO registro) throws PersistenciaException;
-    CuentaEntidad eliminarCuenta(String id) throws PersistenciaException;
-    CuentaEntidad BuscarPorID(String id) throws PersistenciaException;
+    CuentaEntidad eliminarCuenta(int id) throws PersistenciaException;
+    CuentaEntidad BuscarPorID(int id) throws PersistenciaException;
     List<CuentaEntidad> listarAlumnos(String filtro) throws PersistenciaException;
 }

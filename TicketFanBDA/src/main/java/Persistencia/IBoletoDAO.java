@@ -16,7 +16,7 @@ import java.util.List;
 public interface IBoletoDAO {
     BoletoEntidad guardarBoleto(GuardarBoletoDTO registro) throws PersistenciaException;
     BoletoEntidad editarBoleto(EditarBoletoDTO registro) throws PersistenciaException;
-    BoletoEntidad eliminarBoleto(String id) throws PersistenciaException;
-    BoletoEntidad BuscarPorID(String id) throws PersistenciaException;
+    BoletoEntidad eliminarBoleto(int id) throws PersistenciaException;
+    BoletoEntidad BuscarPorID(int id) throws PersistenciaException;
     List<BoletoEntidad> listarAlumnos(String filtro) throws PersistenciaException;
 }

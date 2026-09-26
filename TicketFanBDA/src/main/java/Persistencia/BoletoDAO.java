@@ -26,12 +26,12 @@ public class BoletoDAO implements IBoletoDAO{
     }
 
     @Override
-    public BoletoEntidad eliminarBoleto(String id) throws PersistenciaException {
+    public BoletoEntidad eliminarBoleto(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public BoletoEntidad BuscarPorID(String id) throws PersistenciaException {
+    public BoletoEntidad BuscarPorID(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

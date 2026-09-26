@@ -16,7 +16,7 @@ import java.util.List;
 public interface IEventoDAO {
     EventoEntidad guardarEvento(GuardarEventoDTO registro) throws PersistenciaException;
     EventoEntidad editarEvento(EditarEventoDTO registro) throws PersistenciaException;
-    EventoEntidad eliminarEvento(String id) throws PersistenciaException;
-    EventoEntidad BuscarPorID(String id) throws PersistenciaException;
+    EventoEntidad eliminarEvento(int id) throws PersistenciaException;
+    EventoEntidad BuscarPorID(int id) throws PersistenciaException;
     List<EventoEntidad> listarAlumnos(String filtro) throws PersistenciaException;
 }

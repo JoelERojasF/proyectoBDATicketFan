@@ -26,12 +26,12 @@ public class EventoDAO implements IEventoDAO{
     }
 
     @Override
-    public EventoEntidad eliminarEvento(String id) throws PersistenciaException {
+    public EventoEntidad eliminarEvento(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public EventoEntidad BuscarPorID(String id) throws PersistenciaException {
+    public EventoEntidad BuscarPorID(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

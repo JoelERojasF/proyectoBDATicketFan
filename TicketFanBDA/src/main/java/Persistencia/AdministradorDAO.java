@@ -14,6 +14,12 @@ import java.util.List;
  * @author le0jx
  */
 public class AdministradorDAO implements IAdministradorDAO{
+    
+    private IConexionBD conexion;
+
+    public AdministradorDAO(IConexionBD conexion) {
+        this.conexion = conexion;
+    }
 
     @Override
     public AdministradorEntidad guardarAdministrador(GuardarAdministradorDTO registro) throws PersistenciaException {
@@ -26,12 +32,12 @@ public class AdministradorDAO implements IAdministradorDAO{
     }
 
     @Override
-    public AdministradorEntidad eliminarAdministrador(String id) throws PersistenciaException {
+    public AdministradorEntidad eliminarAdministrador(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public AdministradorEntidad BuscarPorID(String id) throws PersistenciaException {
+    public AdministradorEntidad BuscarPorID(int id) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
