@@ -36,7 +36,7 @@ public class EventoDAO implements IEventoDAO{
     }
 
     @Override
-    public List<EventoEntidad> listarAlumnos(String filtro) throws PersistenciaException {
+    public List<EventoEntidad> listarEventos(String filtro) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

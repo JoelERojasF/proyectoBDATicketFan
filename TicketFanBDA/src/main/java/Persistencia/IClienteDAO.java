@@ -18,5 +18,5 @@ public interface IClienteDAO {
     ClienteEntidad editarCliente(EditarClienteDTO registro) throws PersistenciaException;
     ClienteEntidad eliminarCliente(int id) throws PersistenciaException;
     ClienteEntidad BuscarPorID(int id) throws PersistenciaException;
-    List<ClienteEntidad> listarAlumnos(String filtro) throws PersistenciaException;
+    List<ClienteEntidad> listarClientes(String filtro) throws PersistenciaException;
 }

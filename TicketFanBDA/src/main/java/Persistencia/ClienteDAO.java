@@ -36,7 +36,7 @@ public class ClienteDAO implements IClienteDAO{
     }
 
     @Override
-    public List<ClienteEntidad> listarAlumnos(String filtro) throws PersistenciaException {
+    public List<ClienteEntidad> listarClientes(String filtro) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

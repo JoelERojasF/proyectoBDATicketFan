@@ -36,7 +36,7 @@ public class BoletoDAO implements IBoletoDAO{
     }
 
     @Override
-    public List<BoletoEntidad> listarAlumnos(String filtro) throws PersistenciaException {
+    public List<BoletoEntidad> listarBoletos(String filtro) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

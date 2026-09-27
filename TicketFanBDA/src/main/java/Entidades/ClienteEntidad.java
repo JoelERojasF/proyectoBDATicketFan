@@ -87,6 +87,11 @@ public class ClienteEntidad {
     public void setContraseña(String contraseña) {
         this.contraseña = contraseña;
     }
+
+    @Override
+    public String toString() {
+        return "ClienteEntidad{" + "id=" + id + ", nombres=" + nombres + ", apellidoPaterno=" + apellidoPaterno + ", apellidoMaterno=" + apellidoMaterno + ", fechaNacimiento=" + fechaNacimiento + ", usuario=" + usuario + ", contrase\u00f1a=" + contraseña + '}';
+    }
     
     
 }

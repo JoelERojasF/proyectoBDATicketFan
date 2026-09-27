@@ -95,6 +95,11 @@ public class EventoEntidad {
     public void setIdCuenta(int idCuenta) {
         this.idCuenta = idCuenta;
     }
+
+    @Override
+    public String toString() {
+        return "EventoEntidad{" + "id=" + id + ", nombreShow=" + nombreShow + ", tipo=" + tipo + ", edadMinima=" + edadMinima + ", imagenPromocional=" + imagenPromocional + ", cantidadBoletos=" + cantidadBoletos + ", idAdministrador=" + idAdministrador + ", idCuenta=" + idCuenta + '}';
+    }
     
     
 }

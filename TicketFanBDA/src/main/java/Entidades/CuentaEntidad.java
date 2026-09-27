@@ -75,6 +75,11 @@ public class CuentaEntidad {
     public void setIdPromotora(int idPromotora) {
         this.idPromotora = idPromotora;
     }
+
+    @Override
+    public String toString() {
+        return "CuentaEntidad{" + "id=" + id + ", saldo=" + saldo + ", banco=" + banco + ", numCuenta=" + numCuenta + ", idCliente=" + idCliente + ", idPromotora=" + idPromotora + '}';
+    }
     
     
 }

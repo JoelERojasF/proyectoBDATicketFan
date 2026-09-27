@@ -18,5 +18,5 @@ public interface ICuentaDAO {
     CuentaEntidad editarCuenta(EditarCuentaDTO registro) throws PersistenciaException;
     CuentaEntidad eliminarCuenta(int id) throws PersistenciaException;
     CuentaEntidad BuscarPorID(int id) throws PersistenciaException;
-    List<CuentaEntidad> listarAlumnos(String filtro) throws PersistenciaException;
+    List<CuentaEntidad> listarCuentas(String filtro) throws PersistenciaException;
 }

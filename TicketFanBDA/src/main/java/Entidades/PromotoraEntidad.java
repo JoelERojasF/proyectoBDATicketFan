@@ -85,6 +85,11 @@ public class PromotoraEntidad {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    @Override
+    public String toString() {
+        return "PromotoraEntidad{" + "id=" + id + ", nombre=" + nombre + ", colonia=" + colonia + ", calle=" + calle + ", numero=" + numero + ", ciudad=" + ciudad + ", estado=" + estado + '}';
+    }
     
     
 }

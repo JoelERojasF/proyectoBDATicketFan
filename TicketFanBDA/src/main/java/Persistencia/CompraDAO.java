@@ -36,7 +36,7 @@ public class CompraDAO implements ICompraDAO{
     }
 
     @Override
-    public List<CompraEntidad> listarAlumnos(String filtro) throws PersistenciaException {
+    public List<CompraEntidad> listarCompras(String filtro) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

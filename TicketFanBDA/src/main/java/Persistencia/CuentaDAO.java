@@ -36,7 +36,7 @@ public class CuentaDAO implements ICuentaDAO{
     }
 
     @Override
-    public List<CuentaEntidad> listarAlumnos(String filtro) throws PersistenciaException {
+    public List<CuentaEntidad> listarCuentas(String filtro) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

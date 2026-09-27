@@ -42,7 +42,7 @@ public class AdministradorDAO implements IAdministradorDAO{
     }
 
     @Override
-    public List<AdministradorEntidad> listarAlumnos(String filtro) throws PersistenciaException {
+    public List<AdministradorEntidad> listarAdministradores(String filtro) throws PersistenciaException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

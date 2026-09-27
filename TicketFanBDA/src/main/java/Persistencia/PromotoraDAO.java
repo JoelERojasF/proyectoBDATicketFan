@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -114,12 +115,86 @@ public class PromotoraDAO implements IPromotoraDAO{
 
     @Override
     public PromotoraEntidad BuscarPorID(int id) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 
+                                    id_promotora,
+                                    nombre,
+                                    colonia,
+                                    calle,
+                                    numero,
+                                    ciudad,
+                                    estado
+                                  FROM promotora 
+                                  WHERE id_promotora = ?
+                                  """;
+            PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+            comando.setInt(1, id);
+            
+            ResultSet rs = comando.executeQuery();
+            if (rs.next()) {
+                return new PromotoraEntidad(
+                        rs.getInt("id_promotora"),
+                        rs.getString("nombre"), 
+                        rs.getString("colonia"), 
+                        rs.getString("calle"), 
+                        rs.getString("numero"), 
+                        rs.getString("ciudad"), 
+                        rs.getString("estado"));
+            }
+            
+            return null;
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al buscar promotora: " + e.getMessage());
+        }
+
     }
 
     @Override
-    public List<PromotoraEntidad> listarAlumnos(String filtro) throws PersistenciaException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<PromotoraEntidad> listarPromotoras(String filtro) throws PersistenciaException {
+        List<PromotoraEntidad> lista = new ArrayList<>();
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 
+                                    id_promotora,
+                                    nombre,
+                                    colonia,
+                                    calle,
+                                    numero,
+                                    ciudad,
+                                    estado
+                                  FROM promotora 
+                                  WHERE nombre LIKE ? OR colonia LIKE ? OR calle LIKE ? OR numero LIKE ? OR ciudad LIKE ? OR estado LIKE ? 
+                                  """;
+            PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+
+            String comodinBusqueda = "%" + filtro + "%";
+            comando.setString(1, comodinBusqueda);
+            comando.setString(2, comodinBusqueda);
+            comando.setString(3, comodinBusqueda);
+            comando.setString(4, comodinBusqueda);
+            comando.setString(5, comodinBusqueda);
+            comando.setString(6, comodinBusqueda);
+            
+            ResultSet rs = comando.executeQuery();
+            
+            while (rs.next()) {
+                lista.add(new PromotoraEntidad(
+                    rs.getInt("id_promotora"),
+                    rs.getString("nombre"),
+                    rs.getString("colonia"),
+                    rs.getString("calle"),
+                    rs.getString("numero"),
+                    rs.getString("ciudad"), 
+                    rs.getString("estado")
+                ));
+            }
+            return lista;
+            
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al listas promotoras: " + e.getMessage());
+        }
+
     }
     
 }

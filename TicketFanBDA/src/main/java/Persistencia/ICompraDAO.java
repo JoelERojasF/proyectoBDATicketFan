@@ -18,5 +18,5 @@ public interface ICompraDAO {
     CompraEntidad editarCompra(EditarCompraDTO registro) throws PersistenciaException;
     CompraEntidad eliminarCompra(int id) throws PersistenciaException;
     CompraEntidad BuscarPorID(int id) throws PersistenciaException;
-    List<CompraEntidad> listarAlumnos(String filtro) throws PersistenciaException;
+    List<CompraEntidad> listarCompras(String filtro) throws PersistenciaException;
 }

@@ -85,6 +85,11 @@ public class AdministradorEntidad {
     public void setIdPromotora(int idPromotora) {
         this.idPromotora = idPromotora;
     }
+
+    @Override
+    public String toString() {
+        return "AdministradorEntidad{" + "id=" + id + ", nombres=" + nombres + ", apellidoPaterno=" + apellidoPaterno + ", apellidoMaterno=" + apellidoMaterno + ", usuario=" + usuario + ", contrase\u00f1a=" + contraseña + ", idPromotora=" + idPromotora + '}';
+    }
     
     
 }

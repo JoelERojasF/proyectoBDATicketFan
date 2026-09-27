@@ -18,5 +18,5 @@ public interface IPromotoraDAO {
     PromotoraEntidad editarPromotora(EditarPromotoraDTO registro) throws PersistenciaException;
     PromotoraEntidad eliminarPromotora(int id) throws PersistenciaException;
     PromotoraEntidad BuscarPorID(int id) throws PersistenciaException;
-    List<PromotoraEntidad> listarAlumnos(String filtro) throws PersistenciaException;
+    List<PromotoraEntidad> listarPromotoras(String filtro) throws PersistenciaException;
 }

@@ -10,5 +10,13 @@
         <maven.compiler.release>22</maven.compiler.release>
         <exec.mainClass>com.tutiketbda.TuTiketBDA</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        </dependencies>
     <name>TicketFanBDA</name>
 </project>

@@ -18,5 +18,5 @@ public interface IEventoDAO {
     EventoEntidad editarEvento(EditarEventoDTO registro) throws PersistenciaException;
     EventoEntidad eliminarEvento(int id) throws PersistenciaException;
     EventoEntidad BuscarPorID(int id) throws PersistenciaException;
-    List<EventoEntidad> listarAlumnos(String filtro) throws PersistenciaException;
+    List<EventoEntidad> listarEventos(String filtro) throws PersistenciaException;
 }

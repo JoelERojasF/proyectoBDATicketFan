@@ -18,5 +18,5 @@ public interface IAdministradorDAO {
     AdministradorEntidad editarAdministrador(EditarAdministradorDTO registro) throws PersistenciaException;
     AdministradorEntidad eliminarAdministrador(int id) throws PersistenciaException;
     AdministradorEntidad BuscarPorID(int id) throws PersistenciaException;
-    List<AdministradorEntidad> listarAlumnos(String filtro) throws PersistenciaException;
+    List<AdministradorEntidad> listarAdministradores(String filtro) throws PersistenciaException;
 }

@@ -75,6 +75,11 @@ public class BoletoEntidad {
     public void setIdCompra(int idCompra) {
         this.idCompra = idCompra;
     }
+
+    @Override
+    public String toString() {
+        return "BoletoEntidad{" + "id=" + id + ", numBoleto=" + numBoleto + ", codigoBoleto=" + codigoBoleto + ", precio=" + precio + ", idEvento=" + idEvento + ", idCompra=" + idCompra + '}';
+    }
     
     
 }
