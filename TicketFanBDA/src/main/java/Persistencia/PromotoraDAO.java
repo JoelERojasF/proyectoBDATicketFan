@@ -192,7 +192,7 @@ public class PromotoraDAO implements IPromotoraDAO{
             return lista;
             
         } catch (SQLException e) {
-            throw new PersistenciaException("Error al listas promotoras: " + e.getMessage());
+            throw new PersistenciaException("Error al listar promotoras: " + e.getMessage());
         }
 
     }

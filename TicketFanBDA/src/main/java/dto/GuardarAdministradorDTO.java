@@ -14,7 +14,6 @@ public class GuardarAdministradorDTO {
     private String apellidoMaterno;
     private String usuario;
     private String contraseña;
-    private int idPromotora;
     
 
     public GuardarAdministradorDTO(String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña) {

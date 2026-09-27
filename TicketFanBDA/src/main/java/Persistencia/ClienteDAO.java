@@ -198,7 +198,7 @@ public class ClienteDAO implements IClienteDAO{
             return lista;
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Error al listas clientes: " + e.getMessage());
+            throw new PersistenciaException("Error al listar clientes: " + e.getMessage());
         }
     }
     

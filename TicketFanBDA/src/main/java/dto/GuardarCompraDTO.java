@@ -11,28 +11,18 @@ import java.time.LocalDateTime;
  * @author le0jx
  */
 public class GuardarCompraDTO {
-    private int id;
     private String detalles;
     private Double total;
     private LocalDateTime fechaHora;
     private int idCliente;
     private int idCuenta;
 
-    public GuardarCompraDTO(int id, String detalles, Double total, LocalDateTime fechaHora, int idCliente, int idCuenta) {
-        this.id = id;
+    public GuardarCompraDTO(String detalles, Double total, LocalDateTime fechaHora, int idCliente, int idCuenta) {
         this.detalles = detalles;
         this.total = total;
         this.fechaHora = fechaHora;
         this.idCliente = idCliente;
         this.idCuenta = idCuenta;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getDetalles() {

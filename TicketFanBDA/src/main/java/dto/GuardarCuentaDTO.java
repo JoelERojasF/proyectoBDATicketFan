@@ -9,26 +9,16 @@ package dto;
  * @author le0jx
  */
 public class GuardarCuentaDTO {
-    private double saldo;
     private String banco;
     private String numCuenta;
     private int idCliente;
     private int idPromotora;
 
-    public GuardarCuentaDTO(double saldo, String banco, String numCuenta, int idCliente, int idPromotora) {
-        this.saldo = saldo;
+    public GuardarCuentaDTO(String banco, String numCuenta, int idCliente, int idPromotora) {
         this.banco = banco;
         this.numCuenta = numCuenta;
         this.idCliente = idCliente;
         this.idPromotora = idPromotora;
-    }
-
-    public double getSaldo() {
-        return saldo;
-    }
-
-    public void setSaldo(double saldo) {
-        this.saldo = saldo;
     }
 
     public String getBanco() {

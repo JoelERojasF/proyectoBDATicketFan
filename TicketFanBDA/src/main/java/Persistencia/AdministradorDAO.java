@@ -192,7 +192,7 @@ public class AdministradorDAO implements IAdministradorDAO{
             return lista;
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Error al listas administradores: " + e.getMessage());
+            throw new PersistenciaException("Error al listar administradores: " + e.getMessage());
         }
     }
     

@@ -10,13 +10,11 @@ package dto;
  */
 public class GuardarEventoDTO {
     private String nombreShow;
-    private int edadMinima;
     private int cantidadBoletos;
     private int idAdministrador;
 
-    public GuardarEventoDTO(String nombreShow, int edadMinima, int cantidadBoletos, int idAdministrador) {
+    public GuardarEventoDTO(String nombreShow, int cantidadBoletos, int idAdministrador) {
         this.nombreShow = nombreShow;
-        this.edadMinima = edadMinima;
         this.cantidadBoletos = cantidadBoletos;
         this.idAdministrador = idAdministrador;
     }
@@ -27,14 +25,6 @@ public class GuardarEventoDTO {
 
     public void setNombreShow(String nombreShow) {
         this.nombreShow = nombreShow;
-    }
-
-    public int getEdadMinima() {
-        return edadMinima;
-    }
-
-    public void setEdadMinima(int edadMinima) {
-        this.edadMinima = edadMinima;
     }
 
     public int getCantidadBoletos() {
