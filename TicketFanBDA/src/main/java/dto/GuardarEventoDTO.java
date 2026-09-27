@@ -9,5 +9,50 @@ package dto;
  * @author le0jx
  */
 public class GuardarEventoDTO {
+    private String nombreShow;
+    private int edadMinima;
+    private int cantidadBoletos;
+    private int idAdministrador;
+
+    public GuardarEventoDTO(String nombreShow, int edadMinima, int cantidadBoletos, int idAdministrador) {
+        this.nombreShow = nombreShow;
+        this.edadMinima = edadMinima;
+        this.cantidadBoletos = cantidadBoletos;
+        this.idAdministrador = idAdministrador;
+    }
+
+    public String getNombreShow() {
+        return nombreShow;
+    }
+
+    public void setNombreShow(String nombreShow) {
+        this.nombreShow = nombreShow;
+    }
+
+    public int getEdadMinima() {
+        return edadMinima;
+    }
+
+    public void setEdadMinima(int edadMinima) {
+        this.edadMinima = edadMinima;
+    }
+
+    public int getCantidadBoletos() {
+        return cantidadBoletos;
+    }
+
+    public void setCantidadBoletos(int cantidadBoletos) {
+        this.cantidadBoletos = cantidadBoletos;
+    }
+
+    public int getIdAdministrador() {
+        return idAdministrador;
+    }
+
+    public void setIdAdministrador(int idAdministrador) {
+        this.idAdministrador = idAdministrador;
+    }
+    
+    
     
 }

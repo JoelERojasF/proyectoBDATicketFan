@@ -9,5 +9,69 @@ package dto;
  * @author le0jx
  */
 public class EditarCuentaDTO {
+    private int id;
+    private double saldo;
+    private String banco;
+    private String numCuenta;
+    private int idCliente;
+    private int idPromotora;
+
+    public EditarCuentaDTO(int id, double saldo, String banco, String numCuenta, int idCliente, int idPromotora) {
+        this.id = id;
+        this.saldo = saldo;
+        this.banco = banco;
+        this.numCuenta = numCuenta;
+        this.idCliente = idCliente;
+        this.idPromotora = idPromotora;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
+    public String getBanco() {
+        return banco;
+    }
+
+    public void setBanco(String banco) {
+        this.banco = banco;
+    }
+
+    public String getNumCuenta() {
+        return numCuenta;
+    }
+
+    public void setNumCuenta(String numCuenta) {
+        this.numCuenta = numCuenta;
+    }
+
+    public int getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(int idCliente) {
+        this.idCliente = idCliente;
+    }
+
+    public int getIdPromotora() {
+        return idPromotora;
+    }
+
+    public void setIdPromotora(int idPromotora) {
+        this.idPromotora = idPromotora;
+    }
+    
     
 }

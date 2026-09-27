@@ -96,7 +96,7 @@ public class PromotoraDAO implements IPromotoraDAO{
     public PromotoraEntidad eliminarPromotora(int id) throws PersistenciaException {
         PromotoraEntidad promotora = BuscarPorID(id);
         if(promotora == null){
-            throw new PersistenciaException("No existe la promotora con id " + id);
+            throw new PersistenciaException("No existe la promotora con id: " + id);
         }
         try (Connection conexion = this.conexion.crearConexion()) {
             String sql = "DELETE FROM promotora WHERE id_promotora = ?";
