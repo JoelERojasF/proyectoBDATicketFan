@@ -28,13 +28,38 @@ public class BoletoDAO implements IBoletoDAO{
         this.conexion = conexion;
     }
     
-    
+    public boolean boletoYaComprado(int idBoleto) throws PersistenciaException {
+
+    String comando = """
+        SELECT id_compra
+        FROM boleto
+        WHERE id_boleto = ?
+          AND id_compra IS NOT NULL
+        """;
+
+    ConexionBD conexionBD = new ConexionBD();
+
+    try (Connection conexion = conexionBD.crearConexion();
+         PreparedStatement comandoSQL = conexion.prepareStatement(comando)) {
+
+        comandoSQL.setInt(1, idBoleto);
+
+        try (ResultSet resultado = comandoSQL.executeQuery()) {
+            return resultado.next();
+        }
+
+    } catch (SQLException e) {
+        throw new PersistenciaException(
+            "Error al verificar si el boleto ya fue comprado"
+        );
+    }
+}
 
     @Override
     public BoletoEntidad guardarBoleto(GuardarBoletoDTO registro) throws PersistenciaException {
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
-                                  INSERT INTO administrador (numero_boleto,
+                                  INSERT INTO boleto (numero_boleto,
                                                       codigo_boleto,
                                                       precio,
                                                       id_evento) 
@@ -186,3 +211,5 @@ public class BoletoDAO implements IBoletoDAO{
     }
     
 }
+
+//PruebaGit
