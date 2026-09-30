@@ -7,6 +7,7 @@ package Persistencia;
 import Entidades.CompraEntidad;
 import dto.EditarCompraDTO;
 import dto.GuardarCompraDTO;
+import dto.BoletoPDFDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,7 +31,98 @@ public class CompraDAO implements ICompraDAO{
         this.conexion = conexion;
     }
     
-    
+public BoletoPDFDTO obtenerDatosBoletoPDF(int idCompra) throws PersistenciaException {
+
+    String comando = """
+        SELECT
+            c.fecha_hora,
+            c.total,
+
+            cl.nombres,
+            cl.apellido_paterno,
+            cl.apellido_materno,
+
+            b.numero_boleto,
+            b.codigo_boleto,
+            b.precio,
+
+            e.nombre_show,
+            e.tipo,
+            e.edad_minima
+
+        FROM compra c
+
+        INNER JOIN cliente cl
+            ON c.id_cliente = cl.id_cliente
+
+        INNER JOIN boleto b
+            ON b.id_compra = c.id_compra
+
+        INNER JOIN evento e
+            ON b.id_evento = e.id_evento
+
+        WHERE c.id_compra = ?
+        """;
+
+    try (Connection conexion = ConexionBD.obtenerConexion();
+         PreparedStatement comandoSQL = conexion.prepareStatement(comando)) {
+
+        comandoSQL.setInt(1, idCompra);
+
+        try (ResultSet resultado = comandoSQL.executeQuery()) {
+
+            if (resultado.next()) {
+
+                BoletoPDFDTO boleto = new BoletoPDFDTO();
+
+                boleto.setNombreCliente(
+                    resultado.getString("nombres") + " "
+                    + resultado.getString("apellido_paterno") + " "
+                    + resultado.getString("apellido_materno")
+                );
+
+                boleto.setNombreEvento(
+                    resultado.getString("nombre_show")
+                );
+
+                boleto.setTipoEvento(
+                    resultado.getString("tipo")
+                );
+
+                boleto.setEdadMinima(
+                    resultado.getInt("edad_minima")
+                );
+
+                boleto.setNumeroBoleto(
+                    resultado.getString("numero_boleto")
+                );
+
+                boleto.setCodigoBoleto(
+                    resultado.getString("codigo_boleto")
+                );
+
+                boleto.setPrecio(
+                    resultado.getDouble("precio")
+                );
+
+                boleto.setFechaCompra(
+                    resultado.getTimestamp("fecha_hora")
+                        .toLocalDateTime()
+                );
+
+                return boleto;
+            }
+
+            return null;
+
+        }
+
+    } catch (SQLException e) {
+        throw new PersistenciaException(
+            "Error al obtener los datos del boleto", e
+        );
+    }
+}    
 
     @Override
     public CompraEntidad guardarCompra(GuardarCompraDTO registro) throws PersistenciaException {
