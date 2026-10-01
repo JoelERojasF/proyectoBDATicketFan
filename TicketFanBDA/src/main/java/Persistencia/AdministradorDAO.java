@@ -28,6 +28,49 @@ public class AdministradorDAO implements IAdministradorDAO{
         this.conexion = conexion;
     }
 
+
+    public AdministradorEntidad buscarPorUsuario(String usuario) throws PersistenciaException {
+    try (Connection conexion = this.conexion.crearConexion()) {
+
+        String sentenciaSQL = """
+                              SELECT 
+                                id_administrador,
+                                nombres,
+                                apellido_paterno,
+                                apellido_materno,
+                                usuario,
+                                contrasena,
+                                id_promotora
+                              FROM administrador
+                              WHERE usuario = ?
+                              """;
+
+        PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+        comando.setString(1, usuario);
+
+        ResultSet rs = comando.executeQuery();
+
+        if (rs.next()) {
+            return new AdministradorEntidad(
+                    rs.getInt("id_administrador"),
+                    rs.getString("nombres"),
+                    rs.getString("apellido_paterno"),
+                    rs.getString("apellido_materno"),
+                    rs.getString("usuario"),
+                    rs.getString("contrasena"),
+                    rs.getInt("id_promotora")
+            );
+        }
+
+        return null;
+
+    } catch (SQLException e) {
+        throw new PersistenciaException(
+                "Error al buscar administrador por usuario: " + e.getMessage()
+        );
+    }
+}
+
     @Override
     public AdministradorEntidad guardarAdministrador(GuardarAdministradorDTO registro) throws PersistenciaException {
         try (Connection conexion = this.conexion.crearConexion()) {
@@ -117,7 +160,7 @@ public class AdministradorDAO implements IAdministradorDAO{
     }
 
     @Override
-    public AdministradorEntidad BuscarPorID(int id) throws PersistenciaException {
+    public AdministradorEntidad BuscarPorID(int id) throws Persistencia Exception {
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   SELECT 
