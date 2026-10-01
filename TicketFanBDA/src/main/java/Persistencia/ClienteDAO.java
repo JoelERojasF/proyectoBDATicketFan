@@ -44,6 +44,23 @@ public class ClienteDAO implements IClienteDAO{
         }
     }
 
+    /** Igual que validarUsuarioDisponible, pero ignora al propio cliente (para editar). */
+    public boolean validarUsuarioDisponible(String usuario, int idExcluir) throws PersistenciaException {
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 1 FROM cliente WHERE usuario = ? AND id_cliente <> ? LIMIT 1
+                                  """;
+            PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+            comando.setString(1, usuario);
+            comando.setInt(2, idExcluir);
+            try (ResultSet rs = comando.executeQuery()) {
+                return !rs.next();
+            }
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al validar usuario de cliente: " + e.getMessage());
+        }
+    }
+
     @Override
     public ClienteEntidad guardarCliente(GuardarClienteDTO registro) throws PersistenciaException {
         if(!validarUsuarioDisponible(registro.getUsuario())) throw new PersistenciaException("Error usuario de cliente ya registrado");
@@ -85,6 +102,7 @@ public class ClienteDAO implements IClienteDAO{
 
     @Override
     public ClienteEntidad editarCliente(EditarClienteDTO registro) throws PersistenciaException {
+        if(!validarUsuarioDisponible(registro.getUsuario(), registro.getId())) throw new PersistenciaException("Error usuario de cliente ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   UPDATE cliente 
@@ -93,7 +111,7 @@ public class ClienteDAO implements IClienteDAO{
                                       apellido_materno = ?,
                                       fecha_nacimiento = ?,
                                       usuario = ?, 
-                                      contrasena = ?,
+                                      contrasena = ?
                                   WHERE id_cliente = ? 
                                   """;
             PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
@@ -124,7 +142,7 @@ public class ClienteDAO implements IClienteDAO{
             throw new PersistenciaException("No existe el cliente con id: " + id);
         }
         try (Connection conexion = this.conexion.crearConexion()) {
-            String sql = "DELETE FROM cliente WHERE cliente = ?";
+            String sql = "DELETE FROM cliente WHERE id_cliente = ?";
 
             PreparedStatement comando = conexion.prepareStatement(sql);
             comando.setInt(1, id);

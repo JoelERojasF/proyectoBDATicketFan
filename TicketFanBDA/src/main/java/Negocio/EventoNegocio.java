@@ -24,6 +24,14 @@ public class EventoNegocio {
     public EventoNegocio(EventoDAO eventoDAO) {
         this.eventoDAO = eventoDAO;
     }
+
+    public void setAdministradorN(AdministradorNegocio administradorN) {
+        this.administradorN = administradorN;
+    }
+
+    public void setCuentaN(CuentaNegocio cuentaN) {
+        this.cuentaN = cuentaN;
+    }
     
     public EventoEntidad guardarEvento(String nombreShow, String cantidadBoletos, String idAdministrador) throws NegocioException{
         if(!Validaciones.validarTexto(nombreShow)) throw new NegocioException("El nombre del evento es invalido.");
@@ -44,7 +52,7 @@ public class EventoNegocio {
         if(!Validaciones.validarTexto(nombreShow)) throw new NegocioException("El nombre del evento es invalido.");
         if(!Validaciones.validarTexto(tipo)) throw new NegocioException("El tipo del evento es invalido.");
         if(!Validaciones.validarPositivo(edadMinima)) throw new NegocioException("La edad minima del evento es invalida.");  
-        if(!Validaciones.validarTexto(imagenPromocional)) throw new NegocioException("La imagen promocional del evento es invalida.");
+        if(!Validaciones.validarImagen(imagenPromocional)) throw new NegocioException("La imagen promocional del evento es invalida.");
         if(!Validaciones.validarPositivo(cantidadBoletos)) throw new NegocioException("El numero de boletos del evento es invalido.");
         if(!Validaciones.validarPositivo(idAdministrador)) throw new NegocioException("El id buscado del administrador es invalido.");
         if(administradorN.BuscarPorID(idAdministrador) == null) throw new NegocioException("El id buscado del administrador no existe.");

@@ -5,6 +5,7 @@
 package Persistencia;
 
 import Entidades.BoletoEntidad;
+import dto.BoletoPDFDTO;
 import dto.EditarBoletoDTO;
 import dto.GuardarBoletoDTO;
 import java.util.List;
@@ -19,4 +20,7 @@ public interface IBoletoDAO {
     BoletoEntidad eliminarBoleto(int id) throws PersistenciaException;
     BoletoEntidad BuscarPorID(int id) throws PersistenciaException;
     List<BoletoEntidad> listarBoletos(String filtro) throws PersistenciaException;
+    List<BoletoEntidad> listarBoletosDeCompra(int idCompra) throws PersistenciaException;
+    boolean boletoYaComprado(int idBoleto) throws PersistenciaException;
+    BoletoPDFDTO obtenerDatosBoletoPDF(int idBoleto) throws PersistenciaException;
 }

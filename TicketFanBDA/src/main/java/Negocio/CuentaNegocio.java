@@ -25,18 +25,40 @@ public class CuentaNegocio {
     public CuentaNegocio(CuentaDAO cuentaDAO) {
         this.cuentaDAO = cuentaDAO;
     }
+
+    public void setPromotoraN(PromotoraNegocio promotoraN) {
+        this.promotoraN = promotoraN;
+    }
+
+    public void setClienteN(ClienteNegocio clienteN) {
+        this.clienteN = clienteN;
+    }
     
+    /**
+     * Una cuenta pertenece a UN cliente o a UNA promotora (nunca a ambos ni a ninguno).
+     * Para el tipo de dueño que no aplica se deja el id vacio (null).
+     */
+    private void validarDueno(String idCliente, String idPromotora) throws NegocioException {
+        if(!Validaciones.validarIdOpcional(idCliente)) throw new NegocioException("El id buscado del cliente es invalido.");
+        if(!Validaciones.validarIdOpcional(idPromotora)) throw new NegocioException("El id buscado de la promotora es invalido.");
+        boolean hayCliente = !Validaciones.esVacio(idCliente);
+        boolean hayPromotora = !Validaciones.esVacio(idPromotora);
+        if(hayCliente == hayPromotora) throw new NegocioException("La cuenta debe pertenecer a un cliente o a una promotora, pero no a ambos.");
+        if(hayCliente && clienteN.BuscarPorID(idCliente) == null) throw new NegocioException("El id buscado del cliente no existe.");
+        if(hayPromotora && promotoraN.BuscarPorID(idPromotora) == null) throw new NegocioException("El id buscado de la promotora no existe.");
+    }
+    
+    private static Integer idOpcional(String texto) {
+        return Validaciones.esVacio(texto) ? null : Integer.valueOf(texto.trim());
+    }
     
     public CuentaEntidad guardarCuenta(String banco, String numCuenta, String idCliente, String idPromotora) throws NegocioException{
         if(!Validaciones.validarTexto(banco)) throw new NegocioException("El nombre de banco de la cuenta es invalido.");
         if(!Validaciones.validarNumCuenta(numCuenta)) throw new NegocioException("El numero de la cuenta es invalido.");
-        if(!Validaciones.validarPositivo(idCliente)) throw new NegocioException("El id buscado del cliente es invalido.");
-        if(!Validaciones.validarPositivo(idPromotora)) throw new NegocioException("El id buscado de la promotora es invalido.");
-        if(clienteN.BuscarPorID(idCliente) == null) throw new NegocioException("El id buscado del cliente no existe.");
-        if(promotoraN.BuscarPorID(idPromotora) == null) throw new NegocioException("El id buscado de la promotora no existe.");
+        validarDueno(idCliente, idPromotora);
 
         try{
-            GuardarCuentaDTO registro = new GuardarCuentaDTO(banco, numCuenta, Integer.parseInt(idCliente), Integer.parseInt(idPromotora));
+            GuardarCuentaDTO registro = new GuardarCuentaDTO(banco, numCuenta, idOpcional(idCliente), idOpcional(idPromotora));
             return cuentaDAO.guardarCuenta(registro);
         }catch (PersistenciaException e) {
             throw new NegocioException("Error al guardar cuenta: " + e.getMessage());
@@ -48,13 +70,10 @@ public class CuentaNegocio {
         if(!Validaciones.validarCantidadDinero(saldo)) throw new NegocioException("El saldo de la cuenta invalido");
         if(!Validaciones.validarTexto(banco)) throw new NegocioException("El nombre de banco de la cuenta es invalido.");
         if(!Validaciones.validarNumCuenta(numCuenta)) throw new NegocioException("El numero de la cuenta es invalido.");
-        if(!Validaciones.validarPositivo(idCliente)) throw new NegocioException("El id buscado del cliente es invalido.");
-        if(!Validaciones.validarPositivo(idPromotora)) throw new NegocioException("El id buscado de la promotora es invalido.");
-        if(clienteN.BuscarPorID(idCliente) == null) throw new NegocioException("El id buscado del cliente no existe.");
-        if(promotoraN.BuscarPorID(idPromotora) == null) throw new NegocioException("El id buscado de la promotora no existe.");
+        validarDueno(idCliente, idPromotora);
 
         try{
-            EditarCuentaDTO registro = new EditarCuentaDTO(Integer.parseInt(id),Double.parseDouble(saldo), banco, numCuenta, Integer.parseInt(idCliente), Integer.parseInt(idPromotora));
+            EditarCuentaDTO registro = new EditarCuentaDTO(Integer.parseInt(id),Double.parseDouble(saldo), banco, numCuenta, idOpcional(idCliente), idOpcional(idPromotora));
             return cuentaDAO.editarCuenta(registro);
         }catch (PersistenciaException e) {
             throw new NegocioException("Error al editar cuenta: " + e.getMessage());

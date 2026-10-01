@@ -42,6 +42,23 @@ public class EventoDAO implements IEventoDAO{
         }
     }
 
+    /** Igual que validarNombreDisponible, pero ignora al propio evento (para editar). */
+    private boolean validarNombreDisponible(String nombre_show, int idExcluir) throws PersistenciaException{
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 1 FROM evento WHERE nombre_show = ? AND id_evento <> ? LIMIT 1
+                                  """;
+            PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+            comando.setString(1, nombre_show);
+            comando.setInt(2, idExcluir);
+            try (ResultSet rs = comando.executeQuery()) {
+                return !rs.next();
+            }
+        }catch (SQLException e) {
+            throw new PersistenciaException("Error al validar nombre del evento: " + e.getMessage());
+        }
+    }
+
     @Override
     public EventoEntidad guardarEvento(GuardarEventoDTO registro) throws PersistenciaException {
         if(!validarNombreDisponible(registro.getNombreShow())) throw new PersistenciaException("Error nombre del evento ya registrado");
@@ -50,7 +67,7 @@ public class EventoDAO implements IEventoDAO{
                                   INSERT INTO evento (nombre_show,
                                                       cantidad_boletos,
                                                       id_administrador) 
-                                  VALUES (?,?,?,?);
+                                  VALUES (?,?,?);
                                   """;
             PreparedStatement comando = conexion.prepareStatement(sentenciaSQL, Statement.RETURN_GENERATED_KEYS);
 
@@ -74,7 +91,7 @@ public class EventoDAO implements IEventoDAO{
 
     @Override
     public EventoEntidad editarEvento(EditarEventoDTO registro) throws PersistenciaException {
-        if(!validarNombreDisponible(registro.getNombreShow())) throw new PersistenciaException("Error nombre del evento ya registrado");
+        if(!validarNombreDisponible(registro.getNombreShow(), registro.getId())) throw new PersistenciaException("Error nombre del evento ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   UPDATE evento 
@@ -84,7 +101,7 @@ public class EventoDAO implements IEventoDAO{
                                       imagen_promocional = ?,
                                       cantidad_boletos = ?,
                                       id_administrador = ?,
-                                      id_cuenta = ?,
+                                      id_cuenta = ?
                                   WHERE id_evento = ? 
                                   """;
             PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
@@ -149,14 +166,14 @@ public class EventoDAO implements IEventoDAO{
             ResultSet rs = comando.executeQuery();
             if (rs.next()) {
                 return new EventoEntidad(
-                        rs.getInt("id_cuenta"),
+                        rs.getInt("id_evento"),
                         rs.getString("nombre_show"),
                         rs.getString("tipo"),
                         rs.getInt("edad_minima"),
                         rs.getString("imagen_promocional"),
                         rs.getInt("cantidad_boletos"),
                         rs.getInt("id_administrador"),
-                        rs.getInt("id_cuenta"));
+                        rs.getObject("id_cuenta", Integer.class));
             }
 
             throw new PersistenciaException("No existe el evento con id: " + id);
@@ -199,7 +216,7 @@ public class EventoDAO implements IEventoDAO{
                         rs.getString("imagen_promocional"),
                         rs.getInt("cantidad_boletos"),
                         rs.getInt("id_administrador"),
-                        rs.getInt("id_cuenta")
+                        rs.getObject("id_cuenta", Integer.class)
                 ));
             }
             return lista;

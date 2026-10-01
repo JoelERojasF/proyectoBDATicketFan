@@ -14,7 +14,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -27,103 +29,97 @@ public class CompraDAO implements ICompraDAO{
     public CompraDAO(IConexionBD conexion) {
         this.conexion = conexion;
     }
-    
-<<<<<<< Updated upstream
-    
-=======
-public BoletoPDFDTO obtenerDatosBoletoPDF(int idCompra) throws PersistenciaException {
 
-    String comando = """
-        SELECT
-            c.fecha_hora,
-            c.total,
+    /**
+     * Cancela una compra en UNA sola transaccion (todo o nada):
+     *  1) marca la compra como cancelada,
+     *  2) reembolsa el total a la cuenta del cliente,
+     *  3) descuenta de la cuenta de cada promotora lo que cobro por los boletos de esta compra,
+     *  4) libera los boletos (id_compra = NULL) para que puedan venderse de nuevo.
+     */
+    @Override
+    public CompraEntidad cancelarCompraConReembolso(int idCompra) throws PersistenciaException {
+        try (Connection con = this.conexion.crearConexion()) {
+            con.setAutoCommit(false);
+            try {
+                double total;
+                int idCuentaCliente;
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT total, estatus, id_cuenta FROM compra WHERE id_compra = ? FOR UPDATE")) {
+                    ps.setInt(1, idCompra);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new PersistenciaException("No existe la compra con id: " + idCompra);
+                        }
+                        if ("cancelado".equalsIgnoreCase(rs.getString("estatus"))) {
+                            throw new PersistenciaException("La compra ya fue cancelada anteriormente.");
+                        }
+                        total = rs.getDouble("total");
+                        idCuentaCliente = rs.getInt("id_cuenta");
+                    }
+                }
 
-            cl.nombres,
-            cl.apellido_paterno,
-            cl.apellido_materno,
+                // 1) estatus
+                try (PreparedStatement ps = con.prepareStatement(
+                        "UPDATE compra SET estatus = 'cancelado' WHERE id_compra = ?")) {
+                    ps.setInt(1, idCompra);
+                    ps.executeUpdate();
+                }
 
-            b.numero_boleto,
-            b.codigo_boleto,
-            b.precio,
+                // 2) reembolso al cliente
+                modificarSaldo(con, idCuentaCliente, total);
 
-            e.nombre_show,
-            e.tipo,
-            e.edad_minima
+                // 3) descuento a la cuenta de cada promotora (segun el evento de cada boleto)
+                Map<Integer, Double> montosPorCuenta = new LinkedHashMap<>();
+                try (PreparedStatement ps = con.prepareStatement("""
+                        SELECT e.id_cuenta, SUM(b.precio) AS monto
+                        FROM boleto b
+                        INNER JOIN evento e ON b.id_evento = e.id_evento
+                        WHERE b.id_compra = ? AND e.id_cuenta IS NOT NULL
+                        GROUP BY e.id_cuenta
+                        """)) {
+                    ps.setInt(1, idCompra);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            montosPorCuenta.put(rs.getInt("id_cuenta"), rs.getDouble("monto"));
+                        }
+                    }
+                }
+                for (Map.Entry<Integer, Double> cuenta : montosPorCuenta.entrySet()) {
+                    modificarSaldo(con, cuenta.getKey(), -cuenta.getValue());
+                }
 
-        FROM compra c
+                // 4) liberar boletos
+                try (PreparedStatement ps = con.prepareStatement(
+                        "UPDATE boleto SET id_compra = NULL WHERE id_compra = ?")) {
+                    ps.setInt(1, idCompra);
+                    ps.executeUpdate();
+                }
 
-        INNER JOIN cliente cl
-            ON c.id_cliente = cl.id_cliente
-
-        INNER JOIN boleto b
-            ON b.id_compra = c.id_compra
-
-        INNER JOIN evento e
-            ON b.id_evento = e.id_evento
-
-        WHERE c.id_compra = ?
-        """;
-
-    try (Connection conexion = this.conexion.crearConexion();
-         PreparedStatement comandoSQL = conexion.prepareStatement(comando)) {
-
-        comandoSQL.setInt(1, idCompra);
-
-        try (ResultSet resultado = comandoSQL.executeQuery()) {
-
-            if (resultado.next()) {
-
-                BoletoPDFDTO boleto = new BoletoPDFDTO();
-
-                boleto.setNombreCliente(
-                    resultado.getString("nombres") + " "
-                    + resultado.getString("apellido_paterno") + " "
-                    + resultado.getString("apellido_materno")
-                );
-
-                boleto.setNombreEvento(
-                    resultado.getString("nombre_show")
-                );
-
-                boleto.setTipoEvento(
-                    resultado.getString("tipo")
-                );
-
-                boleto.setEdadMinima(
-                    resultado.getInt("edad_minima")
-                );
-
-                boleto.setNumeroBoleto(
-                    resultado.getString("numero_boleto")
-                );
-
-                boleto.setCodigoBoleto(
-                    resultado.getString("codigo_boleto")
-                );
-
-                boleto.setPrecio(
-                    resultado.getDouble("precio")
-                );
-
-                boleto.setFechaCompra(
-                    resultado.getTimestamp("fecha_hora")
-                        .toLocalDateTime()
-                );
-
-                return boleto;
+                con.commit();
+            } catch (SQLException | PersistenciaException e) {
+                con.rollback();
+                if (e instanceof PersistenciaException) {
+                    throw (PersistenciaException) e;
+                }
+                throw new PersistenciaException("Error al cancelar compra: " + e.getMessage());
             }
-
-            return null;
-
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al cancelar compra: " + e.getMessage());
         }
-
-    } catch (SQLException e) {
-        throw new PersistenciaException(
-            "Error al obtener los datos del boleto" + e.getMessage()
-        );
+        return BuscarPorID(idCompra);
     }
-}    
->>>>>>> Stashed changes
+
+    /** Suma (o resta, si el monto es negativo) un monto al saldo, dentro de la transaccion recibida. */
+    private void modificarSaldo(Connection con, int idCuenta, double monto) throws SQLException, PersistenciaException {
+        try (PreparedStatement ps = con.prepareStatement("UPDATE cuenta SET saldo = saldo + ? WHERE id_cuenta = ?")) {
+            ps.setDouble(1, monto);
+            ps.setInt(2, idCuenta);
+            if (ps.executeUpdate() != 1) {
+                throw new PersistenciaException("No existe la cuenta con id: " + idCuenta);
+            }
+        }
+    }
 
     @Override
     public CompraEntidad guardarCompra(GuardarCompraDTO registro) throws PersistenciaException {

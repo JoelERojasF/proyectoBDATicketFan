@@ -16,12 +16,12 @@ public class EventoEntidad {
     private String imagenPromocional;
     private int cantidadBoletos;
     private int idAdministrador;
-    private int idCuenta;
+    private Integer idCuenta;
 
     public EventoEntidad() {
     }
 
-    public EventoEntidad(int id, String nombreShow, String tipo, int edadMinima, String imagenPromocional, int cantidadBoletos, int idAdministrador, int idCuenta) {
+    public EventoEntidad(int id, String nombreShow, String tipo, int edadMinima, String imagenPromocional, int cantidadBoletos, int idAdministrador, Integer idCuenta) {
         this.id = id;
         this.nombreShow = nombreShow;
         this.tipo = tipo;
@@ -88,11 +88,11 @@ public class EventoEntidad {
         this.idAdministrador = idAdministrador;
     }
 
-    public int getIdCuenta() {
+    public Integer getIdCuenta() {
         return idCuenta;
     }
 
-    public void setIdCuenta(int idCuenta) {
+    public void setIdCuenta(Integer idCuenta) {
         this.idCuenta = idCuenta;
     }
 

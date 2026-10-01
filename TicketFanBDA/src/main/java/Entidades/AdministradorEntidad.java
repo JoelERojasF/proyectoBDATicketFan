@@ -15,12 +15,12 @@ public class AdministradorEntidad {
     private String apellidoMaterno;
     private String usuario;
     private String contraseña;
-    private int idPromotora;
+    private Integer idPromotora;
 
     public AdministradorEntidad() {
     }
 
-    public AdministradorEntidad(int id, String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña, int idPromotora) {
+    public AdministradorEntidad(int id, String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña, Integer idPromotora) {
         this.id = id;
         this.nombres = nombres;
         this.apellidoPaterno = apellidoPaterno;
@@ -78,11 +78,11 @@ public class AdministradorEntidad {
         this.contraseña = contraseña;
     }
 
-    public int getIdPromotora() {
+    public Integer getIdPromotora() {
         return idPromotora;
     }
 
-    public void setIdPromotora(int idPromotora) {
+    public void setIdPromotora(Integer idPromotora) {
         this.idPromotora = idPromotora;
     }
 

@@ -5,7 +5,6 @@
 package Negocio;
 
 import Entidades.CompraEntidad;
-import Entidades.CuentaEntidad;
 import Persistencia.CompraDAO;
 import Persistencia.PersistenciaException;
 import dto.EditarCompraDTO;
@@ -27,26 +26,30 @@ public class CompraNegocio {
     public CompraNegocio(CompraDAO compraDAO) {
         this.compraDAO = compraDAO;
     }
+
+    public void setClienteN(ClienteNegocio clienteN) {
+        this.clienteN = clienteN;
+    }
+
+    public void setCuentaN(CuentaNegocio cuentaN) {
+        this.cuentaN = cuentaN;
+    }
     
-    public CompraEntidad cancelarCompra(String id) throws NegocioException, PersistenciaException{
+    public CompraEntidad cancelarCompra(String id) throws NegocioException{
         if(!Validaciones.validarPositivo(id)) throw new NegocioException("El id buscado de la compra es invalido.");
         try{
-            CompraEntidad compra = compraDAO.BuscarPorID(Integer.parseInt(id));
+            CompraEntidad compra = compraDAO.BuscarPorID(Integer.parseInt(id.trim()));
+            if("cancelado".equalsIgnoreCase(compra.getEstatus())) throw new NegocioException("Error: la compra ya fue cancelada anteriormente.");
+            
             LocalDateTime limite = compra.getFechaHora().plusDays(1);
-        
             if(LocalDateTime.now().isAfter(limite)) throw new NegocioException("Error: la cancelacion de una compra solo puede ocurrir dentro de las siguientes 24 horas desde que se realizo la compra");
         
-            EditarCompraDTO cancelacion = new EditarCompraDTO(compra.getId(), compra.getDetalles(), compra.getTotal(), "cancelado", compra.getFechaHora(), compra.getIdCliente(), compra.getIdCuenta());
-            compraDAO.editarCompra(cancelacion);
-            CuentaEntidad cuenta = cuentaN.BuscarPorID(compra.getIdCuenta()+"");
-            cuentaN.editarCuenta(cuenta.getId()+"", (cuenta.getSaldo()+compra.getTotal())+"", cuenta.getBanco(), cuenta.getNumCuenta(), cuenta.getIdCliente()+"", "0");
-            return compra;
+            // Una sola transaccion: estatus + reembolso al cliente + descuento a la promotora + liberar boletos
+            return compraDAO.cancelarCompraConReembolso(compra.getId());
         }catch(PersistenciaException e){
             throw new NegocioException("Error al cancelar compra: " + e.getMessage());
         }
     }
-    
-    
     
     public CompraEntidad guardarCompra(String detalles, String total, LocalDateTime fechaHora, String idCliente, String idCuenta) throws NegocioException{
         if(!Validaciones.validarTexto(detalles))throw new NegocioException("El detalle de la compra es invalido.");
@@ -59,7 +62,7 @@ public class CompraNegocio {
             GuardarCompraDTO registro = new GuardarCompraDTO(detalles, Double.parseDouble(total), fechaHora, Integer.parseInt(idCliente), Integer.parseInt(idCuenta));
             return compraDAO.guardarCompra(registro);
         }catch (PersistenciaException e) {
-            throw new NegocioException("Error al guardar administrador: " + e.getMessage());
+            throw new NegocioException("Error al guardar compra: " + e.getMessage());
         }
     }
     
@@ -76,11 +79,11 @@ public class CompraNegocio {
             EditarCompraDTO registro = new EditarCompraDTO(Integer.parseInt(id), detalles, Double.parseDouble(total), estatus, fechaHora, Integer.parseInt(idCliente), Integer.parseInt(idCuenta));
             return compraDAO.editarCompra(registro);
         }catch (PersistenciaException e) {
-            throw new NegocioException("Error al editar administrador: " + e.getMessage());
+            throw new NegocioException("Error al editar compra: " + e.getMessage());
         }
     }
     
-    public CompraEntidad eliminarAdministrador(String id) throws NegocioException{
+    public CompraEntidad eliminarCompra(String id) throws NegocioException{
         if (!Validaciones.validarPositivo(id)) throw new NegocioException("El id buscado de la compra es invalido.");
         try {
             return compraDAO.eliminarCompra(Integer.parseInt(id));
@@ -98,7 +101,7 @@ public class CompraNegocio {
         }
     }
     
-    public List<CompraEntidad> listarAdministradores(String filtro) throws NegocioException {
+    public List<CompraEntidad> listarCompras(String filtro) throws NegocioException {
         try {
             if (filtro == null) {
                 filtro = "";

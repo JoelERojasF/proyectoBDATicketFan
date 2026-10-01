@@ -43,6 +43,23 @@ public class AdministradorDAO implements IAdministradorDAO{
         }
     }
 
+    /** Igual que validarUsuarioDisponible, pero ignora al propio administrador (para editar). */
+    public boolean validarUsuarioDisponible(String usuario, int idExcluir) throws PersistenciaException{
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 1 FROM administrador WHERE usuario = ? AND id_administrador <> ? LIMIT 1
+                                  """;
+            PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+            comando.setString(1, usuario);
+            comando.setInt(2, idExcluir);
+            try (ResultSet rs = comando.executeQuery()) {
+                return !rs.next();
+            }
+        }catch (SQLException e) {
+            throw new PersistenciaException("Error al validar usuario de administrador: " + e.getMessage());
+        }
+    }
+
     @Override
     public AdministradorEntidad guardarAdministrador(GuardarAdministradorDTO registro) throws PersistenciaException {
         if(!validarUsuarioDisponible(registro.getUsuario())) throw new PersistenciaException("Error usuario de administrador ya registrado");
@@ -81,7 +98,7 @@ public class AdministradorDAO implements IAdministradorDAO{
 
     @Override
     public AdministradorEntidad editarAdministrador(EditarAdministradorDTO registro) throws PersistenciaException {
-        if(!validarUsuarioDisponible(registro.getUsuario())) throw new PersistenciaException("Error usuario de administrador ya registrado");
+        if(!validarUsuarioDisponible(registro.getUsuario(), registro.getId())) throw new PersistenciaException("Error usuario de administrador ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   UPDATE administrador 
@@ -160,7 +177,7 @@ public class AdministradorDAO implements IAdministradorDAO{
                         rs.getString("apellido_materno"),
                         rs.getString("usuario"),
                         rs.getString("contrasena"),
-                        rs.getInt("id_promotora"));
+                        rs.getObject("id_promotora", Integer.class));
             }
 
             throw new PersistenciaException("No existe el administrador con id: " + id);
@@ -203,7 +220,7 @@ public class AdministradorDAO implements IAdministradorDAO{
                         rs.getString("apellido_materno"),
                         rs.getString("usuario"),
                         rs.getString("contrasena"),
-                        rs.getInt("id_promotora")
+                        rs.getObject("id_promotora", Integer.class)
                 ));
             }
             return lista;

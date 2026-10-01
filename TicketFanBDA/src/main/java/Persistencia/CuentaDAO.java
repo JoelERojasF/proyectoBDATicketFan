@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import org.mindrot.jbcrypt.BCrypt;
@@ -28,13 +29,15 @@ public class CuentaDAO implements ICuentaDAO{
         this.conexion = conexion;
     }
     
-    private boolean validarNumCuentaDisponible(String numCuenta) throws PersistenciaException{
+    /** Disponible = ninguna OTRA cuenta (id distinto a idExcluir) usa ese numero. Para guardar se pasa 0. */
+    private boolean validarNumCuentaDisponible(String numCuenta, int idExcluir) throws PersistenciaException{
         try (Connection conexion = this.conexion.crearConexion()) {
                 String sentenciaSQL = """
-                                  SELECT 1 FROM cuenta WHERE num_cuenta = ? LIMIT 1
+                                  SELECT 1 FROM cuenta WHERE num_cuenta = ? AND id_cuenta <> ? LIMIT 1
                                   """;
                 PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
                 comando.setString(1, numCuenta);
+                comando.setInt(2, idExcluir);
                 try (ResultSet rs = comando.executeQuery()) {
                     return !rs.next();
                 }
@@ -43,15 +46,24 @@ public class CuentaDAO implements ICuentaDAO{
         }
     }
      
-    private boolean validarCuentaAsociada(int idCliente, int idPromotora) throws PersistenciaException{
-        if(idCliente == 0 && idPromotora == 0)throw new PersistenciaException("Error: la cuenta debe pertenecer a alguien");
-        if(idCliente != 0 && idPromotora != 0)throw new PersistenciaException("Error: la cuenta solo puede pertenecer a un solo cliente o a una sola promotora");
+    /** null significa "sin dueno de este tipo": se guarda NULL en la BD. */
+    private void setIdOpcional(PreparedStatement comando, int indice, Integer valor) throws SQLException {
+        if (valor == null) {
+            comando.setNull(indice, Types.INTEGER);
+        } else {
+            comando.setInt(indice, valor);
+        }
+    }
+
+    private boolean validarCuentaAsociada(Integer idCliente, Integer idPromotora) throws PersistenciaException{
+        if(idCliente == null && idPromotora == null)throw new PersistenciaException("Error: la cuenta debe pertenecer a alguien");
+        if(idCliente != null && idPromotora != null)throw new PersistenciaException("Error: la cuenta solo puede pertenecer a un solo cliente o a una sola promotora");
         return true;
     }
 
     @Override
     public CuentaEntidad guardarCuenta(GuardarCuentaDTO registro) throws PersistenciaException {
-        if(!validarNumCuentaDisponible(registro.getNumCuenta())) throw new PersistenciaException("Error numero de cuenta ya registrado");
+        if(!validarNumCuentaDisponible(registro.getNumCuenta(), 0)) throw new PersistenciaException("Error numero de cuenta ya registrado");
         validarCuentaAsociada(registro.getIdCliente(), registro.getIdPromotora());
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
@@ -66,8 +78,8 @@ public class CuentaDAO implements ICuentaDAO{
 
             comando.setString(1, registro.getBanco());
             comando.setString(2, registro.getNumCuenta());
-            comando.setInt(3, registro.getIdCliente());
-            comando.setInt(4, registro.getIdPromotora());
+            setIdOpcional(comando, 3, registro.getIdCliente());
+            setIdOpcional(comando, 4, registro.getIdPromotora());
 
             comando.executeUpdate();
 
@@ -85,7 +97,7 @@ public class CuentaDAO implements ICuentaDAO{
 
     @Override
     public CuentaEntidad editarCuenta(EditarCuentaDTO registro) throws PersistenciaException {
-        if(!validarNumCuentaDisponible(registro.getNumCuenta())) throw new PersistenciaException("Error numero de cuenta ya registrado");
+        if(!validarNumCuentaDisponible(registro.getNumCuenta(), registro.getId())) throw new PersistenciaException("Error numero de cuenta ya registrado");
         validarCuentaAsociada(registro.getIdCliente(), registro.getIdPromotora());
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
@@ -102,8 +114,8 @@ public class CuentaDAO implements ICuentaDAO{
             comando.setDouble(1, registro.getSaldo());
             comando.setString(2, registro.getBanco());
             comando.setString(3, registro.getNumCuenta());
-            comando.setInt(4, registro.getIdCliente());
-            comando.setInt(5, registro.getIdPromotora());
+            setIdOpcional(comando, 4, registro.getIdCliente());
+            setIdOpcional(comando, 5, registro.getIdPromotora());
             comando.setInt(6, registro.getId());
 
             int filas = comando.executeUpdate();
@@ -158,8 +170,8 @@ public class CuentaDAO implements ICuentaDAO{
                         rs.getDouble("saldo"),
                         rs.getString("banco"),
                         rs.getString("num_cuenta"),
-                        rs.getInt("id_cliente"),
-                        rs.getInt("id_promotora"));
+                        rs.getObject("id_cliente", Integer.class),
+                        rs.getObject("id_promotora", Integer.class));
             }
 
             throw new PersistenciaException("No existe la cuenta con id: " + id);
@@ -197,8 +209,8 @@ public class CuentaDAO implements ICuentaDAO{
                         rs.getDouble("saldo"),
                         rs.getString("banco"),
                         rs.getString("num_cuenta"),
-                        rs.getInt("id_cliente"),
-                        rs.getInt("id_promotora")
+                        rs.getObject("id_cliente", Integer.class),
+                        rs.getObject("id_promotora", Integer.class)
                 ));
             }
             return lista;

@@ -25,15 +25,28 @@ public class ClienteNegocio {
     public ClienteNegocio(ClienteDAO clienteDAO) {
         this.clienteDAO = clienteDAO;
     }
+
+    public void setAdministradorN(AdministradorNegocio administradorN) {
+        this.administradorN = administradorN;
+    }
     
-    public ClienteEntidad guardarCliente(String nombres, String apellidoPaterno, String apellidoMaterno, LocalDate fechaNacimiento, String usuario, String contraseña) throws NegocioException, PersistenciaException{
+    /** El usuario tampoco puede coincidir con el de un administrador. */
+    private void validarUsuarioLibreEnAdministradores(String usuario) throws NegocioException {
+        try {
+            if(!administradorN.getAdministradorDAO().validarUsuarioDisponible(usuario)) throw new NegocioException("El nombre de usuario del cliente ya registrado.");
+        } catch (PersistenciaException e) {
+            throw new NegocioException("Error al validar usuario del cliente: " + e.getMessage());
+        }
+    }
+    
+    public ClienteEntidad guardarCliente(String nombres, String apellidoPaterno, String apellidoMaterno, LocalDate fechaNacimiento, String usuario, String contraseña) throws NegocioException{
         if(!Validaciones.validarNombrePersona(nombres)) throw new NegocioException("El nombre del cliente es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoPaterno)) throw new NegocioException("El apellido paterno del cliente es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoMaterno)) throw new NegocioException("El apellido materno del cliente es invalido.");
         if(!Validaciones.validarFechaAntes(fechaNacimiento)) throw new NegocioException("La fecha de nacimiento del cliente es invalida.");
         if(!Validaciones.validarTexto(usuario)) throw new NegocioException("El nombre de usuario del cliente es invalido.");
-        if(!administradorN.getAdministradorDAO().validarUsuarioDisponible(usuario))throw new NegocioException("El nombre de usuario del cliente ya registrado.");
-        if(!Validaciones.validarContraseña(usuario)) throw new NegocioException("La contraseña del cliente es invalida.");
+        validarUsuarioLibreEnAdministradores(usuario);
+        if(!Validaciones.validarContraseña(contraseña)) throw new NegocioException("La contraseña del cliente es invalida.");
         
         try{
             GuardarClienteDTO registro = new GuardarClienteDTO(nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento ,usuario, contraseña);
@@ -43,18 +56,18 @@ public class ClienteNegocio {
         }
     }
     
-    public ClienteEntidad editarCliente(String id, String nombres, String apellidoPaterno, String apellidoMaterno, LocalDate fechaNacimiento, String usuario, String contraseña) throws NegocioException, PersistenciaException{
+    public ClienteEntidad editarCliente(String id, String nombres, String apellidoPaterno, String apellidoMaterno, LocalDate fechaNacimiento, String usuario, String contraseña) throws NegocioException{
         if(!Validaciones.validarPositivo(id)) throw new NegocioException("El id buscado del cliente es invalido.");
         if(!Validaciones.validarNombrePersona(nombres)) throw new NegocioException("El nombre del cliente es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoPaterno)) throw new NegocioException("El apellido paterno del cliente es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoMaterno)) throw new NegocioException("El apellido materno del cliente es invalido.");
         if(!Validaciones.validarFechaAntes(fechaNacimiento)) throw new NegocioException("La fecha de nacimiento del cliente es invalida.");
         if(!Validaciones.validarTexto(usuario)) throw new NegocioException("El nombre de usuario del cliente es invalido.");
-        if(!administradorN.getAdministradorDAO().validarUsuarioDisponible(usuario))throw new NegocioException("El nombre de usuario del cliente ya registrado.");
-        if(!Validaciones.validarContraseña(usuario)) throw new NegocioException("La contraseña del cliente es invalida.");
+        validarUsuarioLibreEnAdministradores(usuario);
+        if(!Validaciones.validarContraseña(contraseña)) throw new NegocioException("La contraseña del cliente es invalida.");
         
         try {
-            EditarClienteDTO registro = new EditarClienteDTO(Integer.parseInt(id), nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento ,usuario, contraseña);
+            EditarClienteDTO registro = new EditarClienteDTO(Integer.parseInt(id.trim()), nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento ,usuario, contraseña);
             return clienteDAO.editarCliente(registro);
         } catch (PersistenciaException e) {
             throw new NegocioException("Error al editar cliente: " + e.getMessage());
@@ -64,18 +77,18 @@ public class ClienteNegocio {
     public ClienteEntidad BuscarPorID(String id) throws NegocioException{
         if (!Validaciones.validarPositivo(id)) throw new NegocioException("El id buscado del cliente es invalido.");
         try {
-            return clienteDAO.eliminarCliente(Integer.parseInt(id));
+            return clienteDAO.BuscarPorID(Integer.parseInt(id.trim()));
         } catch (PersistenciaException e) {
-            throw new NegocioException("Error al eliminar cliente: " + e.getMessage());
+            throw new NegocioException("Error al buscar cliente: " + e.getMessage());
         }
     }
     
     public ClienteEntidad eliminarCliente(String id) throws NegocioException{
         if (!Validaciones.validarPositivo(id)) throw new NegocioException("El id buscado del cliente es invalido.");
         try {
-            return clienteDAO.BuscarPorID(Integer.parseInt(id));
+            return clienteDAO.eliminarCliente(Integer.parseInt(id.trim()));
         } catch (PersistenciaException e) {
-            throw new NegocioException("Error al buscar cliente: " + e.getMessage());
+            throw new NegocioException("Error al eliminar cliente: " + e.getMessage());
         }
     }
     
@@ -93,7 +106,4 @@ public class ClienteNegocio {
     public ClienteDAO getClienteDAO() {
         return clienteDAO;
     }
-    
-    
-    
 }

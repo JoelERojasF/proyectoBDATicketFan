@@ -5,6 +5,7 @@
 package Persistencia;
 
 import Entidades.BoletoEntidad;
+import dto.BoletoPDFDTO;
 import dto.EditarBoletoDTO;
 import dto.GuardarBoletoDTO;
 import java.sql.Connection;
@@ -12,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,9 +29,6 @@ public class BoletoDAO implements IBoletoDAO{
         this.conexion = conexion;
     }
     
-<<<<<<< Updated upstream
-    
-=======
     private boolean validarCodigoDisponible(String Codigo) throws PersistenciaException{
         try (Connection conexion = this.conexion.crearConexion()) {
                 String sentenciaSQL = """
@@ -46,39 +45,110 @@ public class BoletoDAO implements IBoletoDAO{
     }
     
     public boolean boletoYaComprado(int idBoleto) throws PersistenciaException {
-
-    String comando = """
-        SELECT id_compra
-        FROM boleto
-        WHERE id_boleto = ?
-          AND id_compra IS NOT NULL
-        """;
-
-    ConexionBD conexionBD = new ConexionBD();
-
-    try (Connection conexion = conexionBD.crearConexion();
-         PreparedStatement comandoSQL = conexion.prepareStatement(comando)) {
-
-        comandoSQL.setInt(1, idBoleto);
-
-        try (ResultSet resultado = comandoSQL.executeQuery()) {
-            return resultado.next();
+        String sentenciaSQL = """
+                              SELECT 1
+                              FROM boleto
+                              WHERE id_boleto = ?
+                                AND id_compra IS NOT NULL
+                              LIMIT 1
+                              """;
+        try (Connection con = this.conexion.crearConexion();
+             PreparedStatement comando = con.prepareStatement(sentenciaSQL)) {
+            comando.setInt(1, idBoleto);
+            try (ResultSet resultado = comando.executeQuery()) {
+                return resultado.next();
+            }
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al verificar si el boleto ya fue comprado: " + e.getMessage());
         }
-
-    } catch (SQLException e) {
-        throw new PersistenciaException(
-            "Error al verificar si el boleto ya fue comprado"
-        );
     }
-}
->>>>>>> Stashed changes
+
+    /**
+     * Datos para imprimir UN boleto en PDF. Devuelve null si el boleto no existe,
+     * no ha sido comprado o su compra esta cancelada.
+     */
+    @Override
+    public BoletoPDFDTO obtenerDatosBoletoPDF(int idBoleto) throws PersistenciaException {
+        String sentenciaSQL = """
+                              SELECT c.fecha_hora,
+                                     cl.nombres, cl.apellido_paterno, cl.apellido_materno,
+                                     b.numero_boleto, b.codigo_boleto, b.precio,
+                                     e.nombre_show, e.tipo, e.edad_minima
+                              FROM boleto b
+                              INNER JOIN compra c  ON b.id_compra = c.id_compra
+                              INNER JOIN cliente cl ON c.id_cliente = cl.id_cliente
+                              INNER JOIN evento e  ON b.id_evento = e.id_evento
+                              WHERE b.id_boleto = ?
+                                AND (c.estatus IS NULL OR c.estatus <> 'cancelado')
+                              """;
+        try (Connection con = this.conexion.crearConexion();
+             PreparedStatement comando = con.prepareStatement(sentenciaSQL)) {
+            comando.setInt(1, idBoleto);
+            try (ResultSet rs = comando.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                String nombreCliente = (nullAVacio(rs.getString("nombres")) + " "
+                        + nullAVacio(rs.getString("apellido_paterno")) + " "
+                        + nullAVacio(rs.getString("apellido_materno"))).trim().replaceAll("\\s+", " ");
+                String tipo = rs.getString("tipo");
+
+                BoletoPDFDTO boleto = new BoletoPDFDTO();
+                boleto.setNombreCliente(nombreCliente);
+                boleto.setNombreEvento(rs.getString("nombre_show"));
+                boleto.setTipoEvento(tipo == null || tipo.isBlank() ? "No especificado" : tipo);
+                boleto.setEdadMinima(rs.getInt("edad_minima"));
+                boleto.setNumeroBoleto(rs.getString("numero_boleto"));
+                boleto.setCodigoBoleto(rs.getString("codigo_boleto"));
+                boleto.setPrecio(rs.getDouble("precio"));
+                boleto.setFechaCompra(rs.getTimestamp("fecha_hora").toLocalDateTime());
+                return boleto;
+            }
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al obtener los datos del boleto: " + e.getMessage());
+        }
+    }
+
+    private static String nullAVacio(String texto) {
+        return texto == null ? "" : texto;
+    }
+
+    /** Boletos asociados a una compra (para que el usuario escoja cual imprimir). */
+    @Override
+    public List<BoletoEntidad> listarBoletosDeCompra(int idCompra) throws PersistenciaException {
+        List<BoletoEntidad> lista = new ArrayList<>();
+        String sentenciaSQL = """
+                              SELECT id_boleto, numero_boleto, codigo_boleto, precio, id_evento, id_compra
+                              FROM boleto
+                              WHERE id_compra = ?
+                              ORDER BY id_boleto
+                              """;
+        try (Connection con = this.conexion.crearConexion();
+             PreparedStatement comando = con.prepareStatement(sentenciaSQL)) {
+            comando.setInt(1, idCompra);
+            try (ResultSet rs = comando.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new BoletoEntidad(
+                            rs.getInt("id_boleto"),
+                            rs.getString("numero_boleto"),
+                            rs.getString("codigo_boleto"),
+                            rs.getDouble("precio"),
+                            rs.getInt("id_evento"),
+                            rs.getObject("id_compra", Integer.class)));
+                }
+            }
+            return lista;
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al listar los boletos de la compra: " + e.getMessage());
+        }
+    }
 
     @Override
     public BoletoEntidad guardarBoleto(GuardarBoletoDTO registro) throws PersistenciaException {
         if(!validarCodigoDisponible(registro.getCodigoBoleto())) throw new PersistenciaException("Error codigo de boleto ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
-                                  INSERT INTO administrador (numero_boleto,
+                                  INSERT INTO boleto (numero_boleto,
                                                       codigo_boleto,
                                                       precio,
                                                       id_evento) 
@@ -124,7 +194,11 @@ public class BoletoDAO implements IBoletoDAO{
             comando.setString(2, registro.getCodigoBoleto());
             comando.setDouble(3, registro.getPrecio());
             comando.setInt(4, registro.getIdEvento());
-            comando.setInt(5, registro.getIdCompra());
+            if (registro.getIdCompra() == null) {
+                comando.setNull(5, Types.INTEGER);
+            } else {
+                comando.setInt(5, registro.getIdCompra());
+            }
             comando.setInt(6, registro.getId());
 
             int filas = comando.executeUpdate();
@@ -180,7 +254,7 @@ public class BoletoDAO implements IBoletoDAO{
                         rs.getString("codigo_boleto"),
                         rs.getDouble("precio"),
                         rs.getInt("id_evento"),
-                        rs.getInt("id_compra"));
+                        rs.getObject("id_compra", Integer.class));
             }
 
             throw new PersistenciaException("No existe el boleto con id: " + id);
@@ -219,7 +293,7 @@ public class BoletoDAO implements IBoletoDAO{
                         rs.getString("codigo_boleto"),
                         rs.getDouble("precio"),
                         rs.getInt("id_evento"),
-                        rs.getInt("id_compra")
+                        rs.getObject("id_compra", Integer.class)
                 ));
             }
             return lista;

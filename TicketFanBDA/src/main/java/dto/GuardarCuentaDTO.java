@@ -11,10 +11,10 @@ package dto;
 public class GuardarCuentaDTO {
     private String banco;
     private String numCuenta;
-    private int idCliente;
-    private int idPromotora;
+    private Integer idCliente;
+    private Integer idPromotora;
 
-    public GuardarCuentaDTO(String banco, String numCuenta, int idCliente, int idPromotora) {
+    public GuardarCuentaDTO(String banco, String numCuenta, Integer idCliente, Integer idPromotora) {
         this.banco = banco;
         this.numCuenta = numCuenta;
         this.idCliente = idCliente;
@@ -37,19 +37,19 @@ public class GuardarCuentaDTO {
         this.numCuenta = numCuenta;
     }
 
-    public int getIdCliente() {
+    public Integer getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(int idCliente) {
+    public void setIdCliente(Integer idCliente) {
         this.idCliente = idCliente;
     }
 
-    public int getIdPromotora() {
+    public Integer getIdPromotora() {
         return idPromotora;
     }
 
-    public void setIdPromotora(int idPromotora) {
+    public void setIdPromotora(Integer idPromotora) {
         this.idPromotora = idPromotora;
     }
     

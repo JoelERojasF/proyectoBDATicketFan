@@ -14,9 +14,9 @@ public class EditarBoletoDTO {
     private String codigoBoleto;
     private double precio;
     private int idEvento;
-    private int idCompra;
+    private Integer idCompra;
 
-    public EditarBoletoDTO(int id, String numBoleto, String codigoBoleto, double precio, int idEvento, int idCompra) {
+    public EditarBoletoDTO(int id, String numBoleto, String codigoBoleto, double precio, int idEvento, Integer idCompra) {
         this.id = id;
         this.numBoleto = numBoleto;
         this.codigoBoleto = codigoBoleto;
@@ -65,11 +65,11 @@ public class EditarBoletoDTO {
         this.idEvento = idEvento;
     }
 
-    public int getIdCompra() {
+    public Integer getIdCompra() {
         return idCompra;
     }
 
-    public void setIdCompra(int idCompra) {
+    public void setIdCompra(Integer idCompra) {
         this.idCompra = idCompra;
     }
     

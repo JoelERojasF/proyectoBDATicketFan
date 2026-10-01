@@ -14,12 +14,12 @@ public class BoletoEntidad {
     private String codigoBoleto;
     private double precio;
     private int idEvento;
-    private int idCompra;
+    private Integer idCompra;
 
     public BoletoEntidad() {
     }
 
-    public BoletoEntidad(int id, String numBoleto, String codigoBoleto, double precio, int idEvento, int idCompra) {
+    public BoletoEntidad(int id, String numBoleto, String codigoBoleto, double precio, int idEvento, Integer idCompra) {
         this.id = id;
         this.numBoleto = numBoleto;
         this.codigoBoleto = codigoBoleto;
@@ -68,11 +68,11 @@ public class BoletoEntidad {
         this.idEvento = idEvento;
     }
 
-    public int getIdCompra() {
+    public Integer getIdCompra() {
         return idCompra;
     }
 
-    public void setIdCompra(int idCompra) {
+    public void setIdCompra(Integer idCompra) {
         this.idCompra = idCompra;
     }
 

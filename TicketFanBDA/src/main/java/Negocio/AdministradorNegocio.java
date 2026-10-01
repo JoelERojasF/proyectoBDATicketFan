@@ -27,14 +27,31 @@ public class AdministradorNegocio {
     public AdministradorNegocio(AdministradorDAO administradorDAO) {
         this.administradorDAO = administradorDAO;
     }
+
+    public void setPromotoraN(PromotoraNegocio promotoraN) {
+        this.promotoraN = promotoraN;
+    }
+
+    public void setClienteN(ClienteNegocio clienteN) {
+        this.clienteN = clienteN;
+    }
     
-    public AdministradorEntidad guardarAdministrador(String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña) throws NegocioException, PersistenciaException{
+    /** El usuario tampoco puede coincidir con el de un cliente. */
+    private void validarUsuarioLibreEnClientes(String usuario) throws NegocioException {
+        try {
+            if(!clienteN.getClienteDAO().validarUsuarioDisponible(usuario)) throw new NegocioException("El nombre de usuario del administrador ya registrado.");
+        } catch (PersistenciaException e) {
+            throw new NegocioException("Error al validar usuario del administrador: " + e.getMessage());
+        }
+    }
+    
+    public AdministradorEntidad guardarAdministrador(String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña) throws NegocioException{
         if(!Validaciones.validarNombrePersona(nombres)) throw new NegocioException("El nombre del administrador es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoPaterno)) throw new NegocioException("El apellido paterno del administrador es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoMaterno)) throw new NegocioException("El apellido materno del administrador es invalido.");
         if(!Validaciones.validarTexto(usuario)) throw new NegocioException("El nombre de usuario del administrador es invalido.");
-        if(!clienteN.getClienteDAO().validarUsuarioDisponible(usuario))throw new NegocioException("El nombre de usuario del administrador ya registrado.");
-        if(!Validaciones.validarContraseña(usuario)) throw new NegocioException("La contraseña del administrador es invalida.");
+        validarUsuarioLibreEnClientes(usuario);
+        if(!Validaciones.validarContraseña(contraseña)) throw new NegocioException("La contraseña del administrador es invalida.");
         
         try{
             GuardarAdministradorDTO registro = new GuardarAdministradorDTO(nombres, apellidoPaterno, apellidoMaterno, usuario, contraseña);
@@ -44,16 +61,16 @@ public class AdministradorNegocio {
         }
     }
     
-    public AdministradorEntidad editarAdministrador(String id, String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña, String idPromotora) throws NegocioException, PersistenciaException{
+    public AdministradorEntidad editarAdministrador(String id, String nombres, String apellidoPaterno, String apellidoMaterno, String usuario, String contraseña, String idPromotora) throws NegocioException{
         if(!Validaciones.validarPositivo(id)) throw new NegocioException("El id buscado del administrador es invalido.");
         if(!Validaciones.validarNombrePersona(nombres)) throw new NegocioException("El nombre del administrador es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoPaterno)) throw new NegocioException("El apellido paterno del administrador es invalido.");
         if(!Validaciones.validarNombrePersona(apellidoMaterno)) throw new NegocioException("El apellido materno del administrador es invalido.");
         if(!Validaciones.validarTexto(usuario)) throw new NegocioException("El nombre de usuario del administrador es invalido.");
-        if(!clienteN.getClienteDAO().validarUsuarioDisponible(usuario))throw new NegocioException("El nombre de usuario del administrador ya registrado.");
-        if(!Validaciones.validarContraseña(usuario)) throw new NegocioException("La contraseña del administrador es invalida.");
+        validarUsuarioLibreEnClientes(usuario);
+        if(!Validaciones.validarContraseña(contraseña)) throw new NegocioException("La contraseña del administrador es invalida.");
         if(!Validaciones.validarPositivo(idPromotora)) throw new NegocioException("El id buscado de la promotora es invalido.");
-        if(promotoraN.BuscarPorID(id) == null) throw new NegocioException("El id buscado de la promotora no existe.");
+        if(promotoraN.BuscarPorID(idPromotora) == null) throw new NegocioException("El id buscado de la promotora no existe.");
         try{
             EditarAdministradorDTO registro = new EditarAdministradorDTO(Integer.parseInt(id), nombres, apellidoPaterno, apellidoMaterno, usuario, contraseña, Integer.parseInt(idPromotora));
             return administradorDAO.editarAdministrador(registro);
