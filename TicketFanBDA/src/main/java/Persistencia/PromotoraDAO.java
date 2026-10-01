@@ -21,14 +21,52 @@ import java.util.List;
  */
 public class PromotoraDAO implements IPromotoraDAO{
     
-    private IConexionBD conexion;
+    private final IConexionBD conexion;
 
     public PromotoraDAO(IConexionBD conexion) {
         this.conexion = conexion;
     }
+    
+    private boolean validarNombreDisponible(String nombre) throws PersistenciaException{
+        try (Connection conexion = this.conexion.crearConexion()) {
+                String sentenciaSQL = """
+                                  SELECT 1 FROM promotora WHERE nombre = ? LIMIT 1
+                                  """;
+                PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+                comando.setString(1, nombre);
+                try (ResultSet rs = comando.executeQuery()) {
+                    return !rs.next();
+                }
+        }catch (SQLException e) {
+            throw new PersistenciaException("Error al validar nombre de promotora: " + e.getMessage());
+        }
+    }
+    
+    private boolean validarDireccionDisponible(String colonia, String calle, String numero, String ciudad, String estado) throws PersistenciaException{
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 1 FROM promotora 
+                                  WHERE colonia = ? AND calle = ? AND numero = ? AND ciudad = ? AND estado = ? 
+                                  LIMIT 1
+                                  """;
+                PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+                comando.setString(1, colonia);
+                comando.setString(2, calle);
+                comando.setString(3, numero);
+                comando.setString(4, ciudad);
+                comando.setString(5, estado);
+                try (ResultSet rs = comando.executeQuery()) {
+                    return !rs.next();
+                }
+        }catch (SQLException e) {
+            throw new PersistenciaException("Error al validar dirección de promotora: " + e.getMessage());
+        }
+    }
 
     @Override
     public PromotoraEntidad guardarPromotora(GuardarPromotoraDTO registro) throws PersistenciaException {
+        if(!validarNombreDisponible(registro.getNombre())) throw new PersistenciaException("Error nombre de la promotora ya registrado");
+        if(!validarDireccionDisponible(registro.getColonia(), registro.getCalle(), registro.getNumero(), registro.getCiudad(), registro.getEstado())) throw new PersistenciaException("Error direccion de la promotora ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
              String sentenciaSQL = """
                                   INSERT INTO promotora (nombre,
@@ -64,6 +102,8 @@ public class PromotoraDAO implements IPromotoraDAO{
 
     @Override
     public PromotoraEntidad editarPromotora(EditarPromotoraDTO registro) throws PersistenciaException {
+        if(!validarNombreDisponible(registro.getNombre())) throw new PersistenciaException("Error nombre de la promotora ya registrado");
+        if(!validarDireccionDisponible(registro.getColonia(), registro.getCalle(), registro.getNumero(), registro.getCiudad(), registro.getEstado())) throw new PersistenciaException("Error direccion de la promotora ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   UPDATE promotora 
@@ -143,7 +183,7 @@ public class PromotoraDAO implements IPromotoraDAO{
                         rs.getString("estado"));
             }
             
-            return null;
+            throw new PersistenciaException("No existe la promotora con id: " + id);
         } catch (SQLException e) {
             throw new PersistenciaException("Error al buscar promotora: " + e.getMessage());
         }

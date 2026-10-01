@@ -27,10 +27,24 @@ public class EventoDAO implements IEventoDAO{
         this.conexion = conexion;
     }
     
-    
+    private boolean validarNombreDisponible(String nombre_show) throws PersistenciaException{
+        try (Connection conexion = this.conexion.crearConexion()) {
+                String sentenciaSQL = """
+                                  SELECT 1 FROM evento WHERE nombre_show = ? LIMIT 1
+                                  """;
+                PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+                comando.setString(1, nombre_show);
+                try (ResultSet rs = comando.executeQuery()) {
+                    return !rs.next();
+                }
+        }catch (SQLException e) {
+            throw new PersistenciaException("Error al validar nombre del evento: " + e.getMessage());
+        }
+    }
 
     @Override
     public EventoEntidad guardarEvento(GuardarEventoDTO registro) throws PersistenciaException {
+        if(!validarNombreDisponible(registro.getNombreShow())) throw new PersistenciaException("Error nombre del evento ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   INSERT INTO evento (nombre_show,
@@ -60,6 +74,7 @@ public class EventoDAO implements IEventoDAO{
 
     @Override
     public EventoEntidad editarEvento(EditarEventoDTO registro) throws PersistenciaException {
+        if(!validarNombreDisponible(registro.getNombreShow())) throw new PersistenciaException("Error nombre del evento ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   UPDATE evento 
@@ -96,7 +111,7 @@ public class EventoDAO implements IEventoDAO{
     public EventoEntidad eliminarEvento(int id) throws PersistenciaException {
         EventoEntidad evento = BuscarPorID(id);
         if (evento == null) {
-            throw new PersistenciaException("No existe la cuenta con id: " + id);
+            throw new PersistenciaException("No existe el evento con id: " + id);
         }
         try (Connection conexion = this.conexion.crearConexion()) {
             String sql = "DELETE FROM evento WHERE id_evento = ?";
@@ -144,7 +159,7 @@ public class EventoDAO implements IEventoDAO{
                         rs.getInt("id_cuenta"));
             }
 
-            return null;
+            throw new PersistenciaException("No existe el evento con id: " + id);
         } catch (SQLException e) {
             throw new PersistenciaException("Error al buscar evento: " + e.getMessage());
         }
@@ -177,7 +192,7 @@ public class EventoDAO implements IEventoDAO{
 
             while (rs.next()) {
                 lista.add(new EventoEntidad(
-                        rs.getInt("id_cuenta"),
+                        rs.getInt("id_evento"),
                         rs.getString("nombre_show"),
                         rs.getString("tipo"),
                         rs.getInt("edad_minima"),

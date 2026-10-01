@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -28,10 +27,55 @@ public class BoletoDAO implements IBoletoDAO{
         this.conexion = conexion;
     }
     
+<<<<<<< Updated upstream
     
+=======
+    private boolean validarCodigoDisponible(String Codigo) throws PersistenciaException{
+        try (Connection conexion = this.conexion.crearConexion()) {
+                String sentenciaSQL = """
+                                  SELECT 1 FROM boleto WHERE codigo_boleto = ? LIMIT 1
+                                  """;
+                PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+                comando.setString(1, Codigo);
+                try (ResultSet rs = comando.executeQuery()) {
+                    return !rs.next();
+                }
+        }catch (SQLException e) {
+            throw new PersistenciaException("Error al validar codigo de boleto: " + e.getMessage());
+        }
+    }
+    
+    public boolean boletoYaComprado(int idBoleto) throws PersistenciaException {
+
+    String comando = """
+        SELECT id_compra
+        FROM boleto
+        WHERE id_boleto = ?
+          AND id_compra IS NOT NULL
+        """;
+
+    ConexionBD conexionBD = new ConexionBD();
+
+    try (Connection conexion = conexionBD.crearConexion();
+         PreparedStatement comandoSQL = conexion.prepareStatement(comando)) {
+
+        comandoSQL.setInt(1, idBoleto);
+
+        try (ResultSet resultado = comandoSQL.executeQuery()) {
+            return resultado.next();
+        }
+
+    } catch (SQLException e) {
+        throw new PersistenciaException(
+            "Error al verificar si el boleto ya fue comprado"
+        );
+    }
+}
+>>>>>>> Stashed changes
 
     @Override
     public BoletoEntidad guardarBoleto(GuardarBoletoDTO registro) throws PersistenciaException {
+        if(!validarCodigoDisponible(registro.getCodigoBoleto())) throw new PersistenciaException("Error codigo de boleto ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   INSERT INTO administrador (numero_boleto,
@@ -139,7 +183,7 @@ public class BoletoDAO implements IBoletoDAO{
                         rs.getInt("id_compra"));
             }
 
-            return null;
+            throw new PersistenciaException("No existe el boleto con id: " + id);
         } catch (SQLException e) {
             throw new PersistenciaException("Error al buscar boleto: " + e.getMessage());
         }

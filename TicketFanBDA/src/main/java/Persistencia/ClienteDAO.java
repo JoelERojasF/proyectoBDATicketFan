@@ -28,9 +28,25 @@ public class ClienteDAO implements IClienteDAO{
     public ClienteDAO(IConexionBD conexion) {
         this.conexion = conexion;
     }
+    
+    public boolean validarUsuarioDisponible(String usuario) throws PersistenciaException {
+        try (Connection conexion = this.conexion.crearConexion()) {
+            String sentenciaSQL = """
+                                  SELECT 1 FROM cliente WHERE usuario = ? LIMIT 1
+                                  """;
+            PreparedStatement comando = conexion.prepareStatement(sentenciaSQL);
+            comando.setString(1, usuario);
+            try (ResultSet rs = comando.executeQuery()) {
+                return !rs.next();
+            }
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al validar usuario de cliente: " + e.getMessage());
+        }
+    }
 
     @Override
     public ClienteEntidad guardarCliente(GuardarClienteDTO registro) throws PersistenciaException {
+        if(!validarUsuarioDisponible(registro.getUsuario())) throw new PersistenciaException("Error usuario de cliente ya registrado");
         try (Connection conexion = this.conexion.crearConexion()) {
             String sentenciaSQL = """
                                   INSERT INTO cliente (nombres,
@@ -152,7 +168,7 @@ public class ClienteDAO implements IClienteDAO{
                         rs.getString("contrasena"));
             }
 
-            return null;
+            throw new PersistenciaException("No existe el cliente con id: " + id);
         } catch (SQLException e) {
             throw new PersistenciaException("Error al buscar cliente: " + e.getMessage());
         }
